@@ -3,7 +3,7 @@ module ConjurHostIdentityChef
     extend self
     
     def config_file node
-      node.conjur.configuration_file
+      node['conjur']['configuration_file']
     end
     
     def netrc_file
@@ -43,7 +43,7 @@ module ConjurHostIdentityChef
     def save_credentials credentials
       require 'conjur/authn'
       netrc = Conjur::Authn.netrc
-      netrc[Conjur::Authn.host] = credentials
+      netrc[Conjur.configuration.authn_url] = credentials
       netrc.save
     end
     
@@ -54,6 +54,7 @@ module ConjurHostIdentityChef
     rescue
       false
     end
+  
   end
 end
 

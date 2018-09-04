@@ -46,6 +46,12 @@ File permissions are `0600`.
 The `netrc_path` entry in `conjur.conf` points to `/etc/conjur.identity`. Therefore, downstream Conjur tools such as the
 Conjur CLI will automatically pick up the host identity from this file and use it.
 
+## Conjur version
+Use the environment variable CONJUR_VERSION to work with corresponding conjur appliance version. As an example to work with v4 set the environment variable as follows: export CONJUR_VERSION=4
+
+If variable is not set, default is v5.
+
+
 # Testing
 
 Once the cookbook has run, you can verify the host identity by running `conjur authn whoami`. For example:
