@@ -15,7 +15,7 @@
 #
 
 # Alternatively, package 'ruby-devel'
-case node.platform_family
+case node['platform_family']
 when 'rhel'
   package 'rubygem-json'
 else
@@ -23,11 +23,11 @@ else
 end
 
 chef_gem 'conjur-cli'
-chef_gem 'conjur-asset-host-factory'
+chef_gem 'conjur-api'
 
-appliance_url = node.conjur.configuration.appliance_url
-account = node.conjur.configuration.account
-netrc_path = node.conjur.configuration.netrc_path
+appliance_url = node['conjur']['configuration']['appliance_url']
+account = node['conjur']['configuration']['account']
+netrc_path = node['conjur']['configuration']['netrc_path']
 cert_file = "/etc/conjur-#{account}.pem"
 
 ConjurHelper.update_config(node) do |conjur_config|
@@ -44,9 +44,9 @@ if File.exist?(cert_file)
 end
 
 # Store the Conjur SSL certificate coming in a string
-if node.conjur.configuration['ssl_certificate']
+if node['conjur']['configuration']['ssl_certificate']
   require 'fileutils'
-  File.write(cert_file, node.conjur.configuration.ssl_certificate)
+  File.write(cert_file, node['conjur']['configuration']['ssl_certificate'])
   File.chmod 0644, cert_file
   ConjurHelper.update_config(node) do |conjur_config|
     conjur_config['cert_file'] = cert_file
@@ -59,18 +59,18 @@ ConjurHelper.configure! node
 # Create the host identity if it doesn't exist.
 unless ConjurHelper.credentials?
   require 'uri'
-  require 'conjur-asset-host-factory'
+  #require 'conjur-asset-host-factory'
 
   Chef::Log.debug "Conjur host identity not found in #{ConjurHelper.netrc_file}"
   
-  token   = node.conjur.host_factory_token
-  host_id = node.conjur.host_identity.id
+  token   = node['conjur']['host_factory_token']
+  host_id = node['conjur']['host_identity']['id']
 
   Chef::Log.info "Creating Conjur host identity '#{host_id}'"
 
   host = Conjur::API.host_factory_create_host token, host_id
   
-  ConjurHelper.save_credentials [ "host/#{host['id']}", host['api_key'] ]
+  ConjurHelper.save_credentials(["host/#{host.id}", host.api_key])
 else
   Chef::Log.debug "Conjur host identity already exists in #{ConjurHelper.netrc_file}"
 end
